@@ -3,35 +3,55 @@ package com.example;
 import java.awt.*;
 import javax.swing.*;
 
-public class MainWindow extends JFrame {
+public class MainWindow extends Window {
+    private static MainWindow instance;
+
     private String gender;
     private String name;
 
+    private JLabel lName;
+    private JLabel lGender;
+
+    public static MainWindow getInstance() {
+        if (instance == null)
+            return new MainWindow();
+        return instance;
+    }
+
     public MainWindow() {
         this("not set", "not set");
+
+        if (instance != null) {
+            throw new IllegalStateException("Only 1 MainWindow allowed");
+        }
+        instance = this;
     }
 
     public MainWindow(String gender, String name) {
-        // Logistics
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("MainWindow");
+        super("MainWindow", "Please add information about your dog:");
 
-        // Title
-        JLabel titleLabel = new JLabel("Please add information about your dog:");
-        setLayout(new GridLayout(0, 1));
-        add(titleLabel);
-
-        // Input Fields
         this.gender = gender;
         this.name = name;
 
+        setConfirmAction((e) -> {
+            System.out.println("Your Message: " + getOutput());
+        });
+
+        lGender.setText("Gender: " + gender);
+        lName.setText("Name: " + name);
+    }
+
+    @Override
+    void setup() {
         JPanel panel = new JPanel(new GridLayout(2, 0));
         JButton bGender = new JButton("Set Gender");
         JButton bName = new JButton("Set Name");
         panel.add(bGender);
         panel.add(bName);
-        panel.add(new JLabel("Gender: " + gender));
-        panel.add(new JLabel("Name: " + name));
+        lGender = new JLabel("Gender: " + gender);
+        lName = new JLabel("Name: " + name);
+        panel.add(lGender);
+        panel.add(lName);
 
         bGender.addActionListener((e) -> {
             new DogGenderChooser();
@@ -41,21 +61,21 @@ public class MainWindow extends JFrame {
         });
 
         add(panel);
-
-        // Confirm button
-        JButton done = new JButton("Done");
-        add(done);
-        done.addActionListener((e) -> {
-            System.out.println("Your Message: " + getOutput());
-        });
-
-        // Show the window
-        setLocation(2000, 500);
-        pack();
-        setVisible(true);
     }
 
     public String getOutput() {
         return name + " is the best " + gender + "!";
+    }
+
+    public void setDogGender(String output) {
+        this.gender = output;
+        lGender.setText("Gender: " + gender);
+        lName.setText("Name: " + name);
+    }
+
+    public void setDogName(String output) {
+        this.name = output;
+        lGender.setText("Gender: " + gender);
+        lName.setText("Name: " + name);
     }
 }
